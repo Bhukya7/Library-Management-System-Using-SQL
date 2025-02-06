@@ -1,225 +1,426 @@
-# Create a database named library and create following TABLES in the database:
-# 1. Branch
-# 2. Employee
-# 3. Customer
-# 4. IssueStatus
-# 5. ReturnStatus
-# 6. Books
 
+CREATE PROC dbo.LibraryManagementSystemProcedure
+AS
+CREATE DATABASE db_LibraryManagement
+
+GO
+	/* ======================= TABLES ========================*/
+
+
+	CREATE TABLE tbl_publisher (
+		publisher_PublisherName VARCHAR(100) PRIMARY KEY NOT NULL,
+		publisher_PublisherAddress VARCHAR(200) NOT NULL,
+		publisher_PublisherPhone VARCHAR(50) NOT NULL,
+	);
+
+	CREATE TABLE tbl_book (
+		book_BookID INT PRIMARY KEY NOT NULL IDENTITY (1,1),
+		book_Title VARCHAR(100) NOT NULL,
+		book_PublisherName VARCHAR(100) NOT NULL CONSTRAINT fk_publisher_name1 FOREIGN KEY REFERENCES tbl_publisher(publisher_PublisherName) ON UPDATE CASCADE ON DELETE CASCADE,
+	);
+
+	CREATE TABLE tbl_library_branch (
+		library_branch_BranchID INT PRIMARY KEY NOT NULL IDENTITY (1,1),
+		library_branch_BranchName VARCHAR(100) NOT NULL,
+		library_branch_BranchAddress VARCHAR(200) NOT NULL,
+	);
+
+	SELECT * FROM tbl_library_branch
+
+	CREATE TABLE tbl_borrower (
+		borrower_CardNo INT PRIMARY KEY NOT NULL IDENTITY (100,1),
+		borrower_BorrowerName VARCHAR(100) NOT NULL,
+		borrower_BorrowerAddress VARCHAR(200) NOT NULL,
+		borrower_BorrowerPhone VARCHAR(50) NOT NULL,
+	);
+
+	SELECT * FROM tbl_borrower
+
+	CREATE TABLE tbl_book_loans (
+		book_loans_LoansID INT PRIMARY KEY NOT NULL IDENTITY (1,1),
+		book_loans_BookID INT NOT NULL CONSTRAINT fk_book_id1 FOREIGN KEY REFERENCES tbl_book(book_BookID) ON UPDATE CASCADE ON DELETE CASCADE,
+		book_loans_BranchID INT NOT NULL CONSTRAINT fk_branch_id1 FOREIGN KEY REFERENCES tbl_library_branch(library_branch_BranchID) ON UPDATE CASCADE ON DELETE CASCADE,
+		book_loans_CardNo INT NOT NULL CONSTRAINT fk_cardno FOREIGN KEY REFERENCES tbl_borrower(borrower_CardNo) ON UPDATE CASCADE ON DELETE CASCADE,
+		book_loans_DateOut VARCHAR(50) NOT NULL,
+		book_loans_DueDate VARCHAR(50) NOT NULL,
+	);
+
+	SELECT * FROM tbl_book_loans
+		/* Use GETDATE() to retrieve the date values for Date out. Use DATEADD for the DueDate*/
+	 
+	CREATE TABLE tbl_book_copies (
+		book_copies_CopiesID INT PRIMARY KEY NOT NULL IDENTITY (1,1),
+		book_copies_BookID INT NOT NULL CONSTRAINT fk_book_id2 FOREIGN KEY REFERENCES tbl_book(book_BookID) ON UPDATE CASCADE ON DELETE CASCADE,
+		book_copies_BranchID INT NOT NULL CONSTRAINT fk_branch_id2 FOREIGN KEY REFERENCES tbl_library_branch(library_branch_BranchID) ON UPDATE CASCADE ON DELETE CASCADE,
+		book_copies_No_Of_Copies INT NOT NULL,
+	);
+
+	SELECT * FROM tbl_book_copies
+
+	CREATE TABLE tbl_book_authors (
+		book_authors_AuthorID INT PRIMARY KEY NOT NULL IDENTITY (1,1),
+		book_authors_BookID INT NOT NULL CONSTRAINT fk_book_id3 FOREIGN KEY REFERENCES tbl_book(book_BookID) ON UPDATE CASCADE ON DELETE CASCADE,
+		book_authors_AuthorName VARCHAR(50) NOT NULL,
+	);
+
+	SELECT * FROM tbl_book_authors
+
+/*======================== END TABLES ======================*/
+
+
+/*==================== POPULATING TABLES ======================*/
+	
+	INSERT INTO tbl_publisher
+		(publisher_PublisherName, publisher_PublisherAddress, publisher_PublisherPhone)
+		VALUES
+		('DAW Books','375 Hudson Street, New York, NY 10014','212-366-2000'),
+		('Viking','375 Hudson Street, New York, NY 10014','212-366-2000'),
+		('Signet Books','375 Hudson Street, New York, NY 10014','212-366-2000'),
+		('Chilton Books','Not Available','Not Available'),
+		('George Allen & Unwin','83 Alexander Ln, Crows Nest NSW 2065, Australia','+61-2-8425-0100'),
+		('Alfred A. Knopf','The Knopf Doubleday Group Domestic Rights, 1745 Broadway, New York, NY 10019','212-940-7390'),		
+		('Bloomsbury','Bloomsbury Publishing Inc., 1385 Broadway, 5th Floor, New York, NY 10018','212-419-5300'),
+		('Shinchosa','Oga Bldg. 8, 2-5-4 Sarugaku-cho, Chiyoda-ku, Tokyo 101-0064 Japan','+81-3-5577-6507'),
+		('Harper and Row','HarperCollins Publishers, 195 Broadway, New York, NY 10007','212-207-7000'),
+		('Pan Books','175 Fifth Avenue, New York, NY 10010','646-307-5745'),
+		('Chalto & Windus','375 Hudson Street, New York, NY 10014','212-366-2000'),
+		('Harcourt Brace Jovanovich','3 Park Ave, New York, NY 10016','212-420-5800'),
+		('W.W. Norton',' W. W. Norton & Company, Inc., 500 Fifth Avenue, New York, New York 10110','212-354-5500'),
+		('Scholastic','557 Broadway, New York, NY 10012','800-724-6527'),
+		('Bantam','375 Hudson Street, New York, NY 10014','212-366-2000'),
+		('Picador USA','175 Fifth Avenue, New York, NY 10010','646-307-5745')		
+	;
+
+	SELECT * FROM tbl_publisher
+
+	INSERT INTO tbl_book
+		(book_Title, book_PublisherName)
+		VALUES 
+		('The Name of the Wind', 'DAW Books'),
+		('It', 'Viking'),
+		('The Green Mile', 'Signet Books'),
+		('Dune', 'Chilton Books'),
+		('The Hobbit', 'George Allen & Unwin'),
+		('Eragon', 'Alfred A. Knopf'),
+		('A Wise Mans Fear', 'DAW Books'),
+		('Harry Potter and the Philosophers Stone', 'Bloomsbury'),
+		('Hard Boiled Wonderland and The End of the World', 'Shinchosa'),
+		('The Giving Tree', 'Harper and Row'),
+		('The Hitchhikers Guide to the Galaxy', 'Pan Books'),
+		('Brave New World', 'Chalto & Windus'),
+		('The Princess Bride', 'Harcourt Brace Jovanovich'),
+		('Fight Club', 'W.W. Norton'),
+		('Holes', 'Scholastic'),
+		('Harry Potter and the Chamber of Secrets', 'Bloomsbury'),
+		('Harry Potter and the Prisoner of Azkaban', 'Bloomsbury'),
+		('The Fellowship of the Ring', 'George Allen & Unwin'),
+		('A Game of Thrones', 'Bantam'),
+		('The Lost Tribe', 'Picador USA');
+
+	SELECT * FROM tbl_book WHERE book_PublisherName = 'George Allen & Unwin'
+
+	INSERT INTO tbl_library_branch
+		(library_branch_BranchName, library_branch_BranchAddress)
+		VALUES
+		('Sharpstown','32 Corner Road, New York, NY 10012'),
+		('Central','491 3rd Street, New York, NY 10014'),
+		('Saline','40 State Street, Saline, MI 48176'),
+		('Ann Arbor','101 South University, Ann Arbor, MI 48104');
+
+	/*UPDATE tbl_library_branch
+	SET library_branch_BranchName = 'Central'
+	WHERE library_branch_BranchID = 2;*/
+	
+	SELECT * FROM tbl_library_branch
+
+	INSERT INTO tbl_borrower
+		(borrower_BorrowerName, borrower_BorrowerAddress, borrower_BorrowerPhone)
+		VALUES
+		('Joe Smith','1321 4th Street, New York, NY 10014','212-312-1234'),
+		('Jane Smith','1321 4th Street, New York, NY 10014','212-931-4124'),
+		('Tom Li','981 Main Street, Ann Arbor, MI 48104','734-902-7455'),
+		('Angela Thompson','2212 Green Avenue, Ann Arbor, MI 48104','313-591-2122'),
+		('Harry Emnace','121 Park Drive, Ann Arbor, MI 48104','412-512-5522'),
+		('Tom Haverford','23 75th Street, New York, NY 10014','212-631-3418'),
+		('Haley Jackson','231 52nd Avenue New York, NY 10014','212-419-9935'),
+		('Michael Horford','653 Glen Avenue, Ann Arbor, MI 48104','734-998-1513');
+	
+	SELECT * FROM tbl_borrower
+
+	INSERT INTO tbl_book_loans
+		(book_loans_BookID, book_loans_BranchID, book_loans_CardNo, book_loans_DateOut, book_loans_DueDate)
+		VALUES
+		('1','1','100','1/1/18','2/2/18'),
+		('2','1','100','1/1/18','2/2/18'),
+		('3','1','100','1/1/18','2/2/18'),
+		('4','1','100','1/1/18','2/2/18'),
+		('5','1','102','1/3/18','2/3/18'),
+		('6','1','102','1/3/18','2/3/18'),
+		('7','1','102','1/3/18','2/3/18'),
+		('8','1','102','1/3/18','2/3/18'),
+		('9','1','102','1/3/18','2/3/18'),
+		('11','1','102','1/3/18','2/3/18'),
+		('12','2','105','12/12/17','1/12/18'),
+		('10','2','105','12/12/17','1/12/17'),
+		('20','2','105','2/3/18','3/3/18'),
+		('18','2','105','1/5/18','2/5/18'),
+		('19','2','105','1/5/18','2/5/18'),
+		('19','2','100','1/3/18','2/3/18'),
+		('11','2','106','1/7/18','2/7/18'),
+		('1','2','106','1/7/18','2/7/18'),
+		('2','2','100','1/7/18','2/7/18'),
+		('3','2','100','1/7/18','2/7/18'),
+		('5','2','105','12/12/17','1/12/18'),
+		('4','3','103','1/9/18','2/9/18'),
+		('7','3','102','1/3/18','2/3/18'),
+		('17','3','102','1/3/18','2/3/18'),
+		('16','3','104','1/3/18','2/3/18'),
+		('15','3','104','1/3/18','2/3/18'),
+		('15','3','107','1/3/18','2/3/18'),
+		('14','3','104','1/3/18','2/3/18'),
+		('13','3','107','1/3/18','2/3/18'),
+		('13','3','102','1/3/18','2/3/18'),
+		('19','3','102','12/12/17','1/12/18'),
+		('20','4','103','1/3/18','2/3/18'),
+		('1','4','102','1/12/18','2/12/18'),
+		('3','4','107','1/3/18','2/3/18'),
+		('18','4','107','1/3/18','2/3/18'),
+		('12','4','102','1/4/18','2/4/18'),
+		('11','4','103','1/15/18','2/15/18'),
+		('9','4','103','1/15/18','2/15/18'),
+		('7','4','107','1/1/18','2/2/18'),
+		('4','4','103','1/1/18','2/2/18'),
+		('1','4','103','2/2/17','3/2/18'),
+		('20','4','103','1/3/18','2/3/18'),
+		('1','4','102','1/12/18','2/12/18'),
+		('3','4','107','1/13/18','2/13/18'),
+		('18','4','107','1/13/18','2/13/18'),
+		('12','4','102','1/14/18','2/14/18'),
+		('11','4','103','1/15/18','2/15/18'),
+		('9','4','103','1/15/18','2/15/18'),
+		('7','4','107','1/19/18','2/19/18'),
+		('4','4','103','1/19/18','2/19/18'),
+		('1','4','103','1/22/18','2/22/18');
+
+		
+	SELECT * FROM tbl_book_loans
+
+	INSERT INTO tbl_book_copies
+		(book_copies_BookID, book_copies_BranchID, book_copies_No_Of_Copies)
+		VALUES
+		('1','1','5'),
+		('2','1','5'),
+		('3','1','5'),
+		('4','1','5'),
+		('5','1','5'),
+		('6','1','5'),
+		('7','1','5'),
+		('8','1','5'),
+		('9','1','5'),
+		('10','1','5'),
+		('11','1','5'),
+		('12','1','5'),
+		('13','1','5'),
+		('14','1','5'),
+		('15','1','5'),
+		('16','1','5'),
+		('17','1','5'),
+		('18','1','5'),
+		('19','1','5'),
+		('20','1','5'),
+		('1','2','5'),
+		('2','2','5'),
+		('3','2','5'),
+		('4','2','5'),
+		('5','2','5'),
+		('6','2','5'),
+		('7','2','5'),
+		('8','2','5'),
+		('9','2','5'),
+		('10','2','5'),
+		('11','2','5'),
+		('12','2','5'),
+		('13','2','5'),
+		('14','2','5'),
+		('15','2','5'),
+		('16','2','5'),
+		('17','2','5'),
+		('18','2','5'),
+		('19','2','5'),
+		('20','2','5'),
+		('1','3','5'),
+		('2','3','5'),
+		('3','3','5'),
+		('4','3','5'),
+		('5','3','5'),
+		('6','3','5'),
+		('7','3','5'),
+		('8','3','5'),
+		('9','3','5'),
+		('10','3','5'),
+		('11','3','5'),
+		('12','3','5'),
+		('13','3','5'),
+		('14','3','5'),
+		('15','3','5'),
+		('16','3','5'),
+		('17','3','5'),
+		('18','3','5'),
+		('19','3','5'),
+		('20','3','5'),
+		('1','4','5'),
+		('2','4','5'),
+		('3','4','5'),
+		('4','4','5'),
+		('5','4','5'),
+		('6','4','5'),
+		('7','4','5'),
+		('8','4','5'),
+		('9','4','5'),
+		('10','4','5'),
+		('11','4','5'),
+		('12','4','5'),
+		('13','4','5'),
+		('14','4','5'),
+		('15','4','5'),
+		('16','4','5'),
+		('17','4','5'),
+		('18','4','5'),
+		('19','4','5'),
+		('20','4','5');
+
+	SELECT * FROM tbl_book_copies
  
-CREATE DATABASE Library;
 
-USE Library;
+	INSERT INTO tbl_book_authors
+		(book_authors_BookID,book_authors_AuthorName)
+		VALUES
+		('1','Patrick Rothfuss'),
+		('2','Stephen King'),
+		('3','Stephen King'),
+		('4','Frank Herbert'),
+		('5','J.R.R. Tolkien'),
+		('6','Christopher Paolini'),
+		('6','Patrick Rothfuss'),
+		('8','J.K. Rowling'),
+		('9','Haruki Murakami'),
+		('10','Shel Silverstein'),
+		('11','Douglas Adams'),
+		('12','Aldous Huxley'),
+		('13','William Goldman'),
+		('14','Chuck Palahniuk'),
+		('15','Louis Sachar'),
+		('16','J.K. Rowling'),
+		('17','J.K. Rowling'),
+		('18','J.R.R. Tolkien'),
+		('19','George R.R. Martin'),
+		('20','Mark Lee');
 
-CREATE TABLE Branch(
-Branch_no INT PRIMARY KEY,
-Manager_Id INT,
-Branch_address VARCHAR(50),
-Contact_no BIGINT
-);
-INSERT INTO Branch VALUES
-(1001, 101,'Jalan Mangga Emas No.5,Denpasar',5565665565),
-(1002, 102, '3890 Oakwood Avenue,Manhattan',4568972315),
-(1003, 103,'Via Silvio Spaventa 98,Scheggia',7856941236),
-(1004, 104,'Rua Pouso Alegre 1768,Varginha' ,9865741236),
-(1005, 105,'Hua Yuan Lu 5hao,City Area - Mentougou District', 8564793215),
-(1006, 106,'2357 Cemetery Street,Houston', 7586941236),
-(1007, 107,'213, Kirikiri Rd., Olodi,Lagos',8564732196),
-(1008, 108,'KHolodilnaya Ul., bld. 16, appt. 129,Novosibirsk',8654972314),
-(1009, 109,'Gao Xin Guo Ji Guang Chang Bzuo 212,Chengdu',9986574231),
-(1010, 110,'Suite 28, Fleming Plaza, AIT Road,Alagbado',8975463214);
+	SELECT * FROM tbl_book_authors
+END
+	/*============================== END POPULATING TABLES ==============================*/
 
-SELECT * FROM Branch;
+/* =================== STORED PROCEDURE QUERY QUESTIONS =================================== */
 
-CREATE TABLE Employee(
-Emp_Id INT PRIMARY KEY,
-Emp_name VARCHAR(30),
-Position VARCHAR(30),
-Salary INT,
-Branch_no INT,
-FOREIGN KEY(Branch_no) REFERENCES Branch(Branch_no));
+/* #1- How many copies of the book titled "The Lost Tribe" are owned by the library branch whose name is "Sharpstown"? */
 
-INSERT INTO Employee VALUES
-(10001,'Jane Doe','Library Assistant',50000,1001),
-(10002,'Jane Smith','Library Manager',80000,1001),
-(10003,'Bob Johnson','Public relations assistant',40000,1002),
-(10004,'Alice Williams','Librarian',60000,1002),
-(10005,'Charlie Brown',' Circulation manager',100000,1002),
-(10006,'Eva Davis',' Information specialist',60000,1003),
-(10007,'Arun Miller',' IT support',70000,1003),
-(10008,'Sophia Wilson','Library Technician',50000,1004),
-(10009,'David Moore','Librarian',60000,1005),
-(10010,'Bob Anderson','Library Assistant',50000,1005),
-(10011,'Anna D','Public relations assistant',55000,1006),
-(10012,'Annie Roy','Accounting and human resources',60000,1006),
-(10013,'Irene Sajan','Library Manager',80000,1007),
-(10014,'Sujithra Ram','Accounting and human resources',60000,1007),
-(10015,'Ashwathy Ajayan','Library Assistant',50000,1008),
-(10016,'Christy George','Library Manager',80000,1008),
-(10017,'Merin Manuel',' Information specialist',60000,1009),
-(10018,'Manuel Augustine',' Circulation manager',100000,1009),
-(10019,'Dona Smith',' Circulation manager',80000,1010),
-(10020,'Bimal Johnson',' IT support',80000,1010);
+CREATE PROC dbo.bookCopiesAtAllSharpstown 
+(@bookTitle varchar(70) = 'The Lost Tribe', @branchName varchar(70) = 'Sharpstown')
+AS
+SELECT copies.book_copies_BranchID AS [Branch ID], branch.library_branch_BranchName AS [Branch Name],
+	   copies.book_copies_No_Of_Copies AS [Number of Copies],
+	   book.book_Title AS [Book Title]
+	   FROM tbl_book_copies AS copies
+			INNER JOIN tbl_book AS book ON copies.book_copies_BookID = book.book_BookID
+			INNER JOIN tbl_library_branch AS branch ON book_copies_BranchID = branch.library_branch_BranchID
+	   WHERE book.book_Title = @bookTitle AND branch.library_branch_BranchName = @branchName
+GO
+EXEC dbo.bookCopiesAtAllSharpstown 
 
-SELECT * FROM Employee;
 
-CREATE TABLE customer(
-Customer_Id INT PRIMARY KEY,
-Customer_name VARCHAR(30),
-Customer_address VARCHAR(60),
-Reg_date DATE);
+/* #2- How many copies of the book titled "The Lost Tribe" are owned by each library branch? */
 
-INSERT INTO Customer VALUES 
-(3001, 'Alice', 'Jalan Mangga Emas No.5,Denpasar', '2021-12-10'),
-(3002, 'Bob','3890 Oakwood Avenue,Manhattan', '2022-01-15'),
-(3003, 'Charlie', 'Via Silvio Spaventa 98,Scheggia', '2022-02-03'),
-(3004, 'Diana','Rua Pouso Alegre 1768,Varginha' , '2022-04-20'),
-(3005, 'Ethan', 'Hua Yuan Lu 5hao,City Area - Mentougou District', '2022-05-02'),
-(3006, 'Olivia', '2357 Cemetery Street,Houston', '2022-06-10'),
-(3007, 'William ', '213, Kirikiri Rd., Olodi,Lagos', '2022-09-15'),
-(3008, 'Sophia ', 'KHolodilnaya Ul., bld. 16, appt. 129,Novosibirsk', '2022-10-05'),
-(3009, 'Jacob', 'Gao Xin Guo Ji Guang Chang Bzuo 212,Chengdu', '2022-12-01'),
-(3010, 'Isabella ', 'Suite 28, Fleming Plaza, AIT Road,Alagbado', '2023-01-20'),
-(3011,'Johnson','Jalan Mangga Emas No.5,Denpasar','2023-03-05'),
-(3012,'Smith', '3890 Oakwood Avenue,Manhattan','2023-05-10'),
-(3013,'Davis','Via Silvio Spaventa 98,Scheggia','2023-05-20'),
-(3014,'Wilson','Rua Pouso Alegre 1768,Varginha' ,'2023-07-25'),
-(3015,'Lee','Hua Yuan Lu 5hao,City Area - Mentougou District','2023-08-10'),
-(3016,'Thompson','2357 Cemetery Street,Houston', '2023-09-15'),
-(3017,'Anderson','213, Kirikiri Rd., Olodi,Lagos','2023-10-05'),
-(3018,'Martinez','KHolodilnaya Ul., bld. 16, appt. 129,Novosibirsk','2023-11-24'),
-(3019,'Hernandez','Gao Xin Guo Ji Guang Chang Bzuo 212,Chengdu','2023-12-14'),
-(3020,'Rodriguez','Suite 28, Fleming Plaza, AIT Road,Alagbado','2024-01-06');
+CREATE PROC dbo.bookCopiesAtAllBranches 
+(@bookTitle varchar(70) = 'The Lost Tribe')
+AS
+SELECT copies.book_copies_BranchID AS [Branch ID], branch.library_branch_BranchName AS [Branch Name],
+	   copies.book_copies_No_Of_Copies AS [Number of Copies],
+	   book.book_Title AS [Book Title]
+	   FROM tbl_book_copies AS copies
+			INNER JOIN tbl_book AS book ON copies.book_copies_BookID = book.book_BookID
+			INNER JOIN tbl_library_branch AS branch ON book_copies_BranchID = branch.library_branch_BranchID
+	   WHERE book.book_Title = @bookTitle 
+GO
+EXEC dbo.bookCopiesAtAllBranches
 
-SELECT * FROM Customer;
 
-CREATE TABLE Books(
-ISBN INT PRIMARY KEY,
-Book_title VARCHAR(100),
-Category VARCHAR(30),
-Rental_price DECIMAL(10,2),
-Status ENUM('YES','NO'),
-Author VARCHAR(30),
-Publisher VARCHAR(30)
-);
+/* #3- Retrieve the names of all borrowers who do not have any books checked out. */
+		
+CREATE PROC dbo.NoLoans
+AS
+SELECT borrower_BorrowerName FROM tbl_borrower
+	WHERE NOT EXISTS
+		(SELECT * FROM tbl_book_loans
+		WHERE book_loans_CardNo = borrower_CardNo)
+GO
+EXEC dbo.NoLoans
 
-INSERT INTO Books VALUES
-(20001, 'A Tale of Two Cities', 'History', 9.8, 'YES', 'Charles Dickens', 'Chapman & Hall'),
-(20002, 'The Alchemist', 'Fantasy', 10.0, 'NO', 'Paulo Coelho', 'HarperTorch'),
-(20003, 'She: A History of Adventure', 'Adventure', 6.5, 'NO', 'H. Rider Haggard', 'Longman'),
-(20004, 'Black Beauty', 'Childrens literature', 7.8, 'YES', 'Anna Sewell', 'Jarrold & Sons'),
-(20005, 'The Ginger Man', 'Novel', 6.9, 'YES', 'J. P. Donleavy', 'Neville Spearman'),
-(20006, 'War and Peace ', 'Historical novel', 8.9, 'YES', 'Leo Tolstoy', 'The Russian Messenger'),
-(20007, 'Harry Potter and the Sorcerers Stone', 'Fantasy', 8.0, 'NO', 'J.K. Rowling', 'Bloomsbury'),
-(20008, 'The Hitchhikers Guide to the Galaxy', 'Science fiction', 8.6, 'YES', 'Douglas Adams', 'Lippincott'),
-(20009, 'The Exorcist', 'Horror', 7.5, 'YES', 'William Peter Blatty', 'Harper & Row'),
-(20010, 'Harry Potter and the Chamber of Secrets', 'Fantasy', 8.0, 'YES', 'J. K. Rowling', 'Bloomsbury'),
-(20011, 'Harry Potter and the Prisoner of Azkaban', 'Fantasy', 8.5, 'NO', 'J. K. Rowling', 'Bloomsbury'),
-(20012, 'Harry Potter and the Goblet of Fire', 'Fantasy', 7.5,'NO', 'J. K. Rowling', 'Bloomsbury'),
-(20013, 'Harry Potter and the Philosophers Stone', 'Fantasy', 8.9, 'YES', '. K. Rowling', 'Bloomsbury'),
-(20014, 'The Little Prince', 'Childrens Fiction', 7.5,'YES', 'Antoine de Saint-Exupéry', 'Reynal & Hitchcock'),
-(20015, 'Kane and Abel', 'Novel', 5.8, 'NO', 'Jeffrey Archer', 'Hodder & Stoughton'),
-(20016, 'Gone with the Wind ', 'History', 8.5, 'YES', 'Margaret Mitchell', 'Macmillan Publishers'),
-(20017, 'The Adventures of Pinocchio', 'Childrens Fiction', 8.9,'YES', 'Carlo Collodi', 'Bloomsbury'),
-(20018, 'The Girl on the Train', 'Thriller', 6.5, 'YES', 'Paula Hawkins', 'Riverhead Books'),
-(20019, 'The Tale of Peter Rabbit', 'Childrens Literature', 9.0, 'YES', 'Beatrix Potter', 'Frederick Warne & Co.'),
-(20020, 'Harry Potter and the Half-Blood Prince', 'Fantasy', 8.5, 'YES', 'J. K. Rowling', 'Bloomsbury');
+/* #4- For each book that is loaned out from the "Sharpstown" branch and whose DueDate is today, retrieve the book title, the borrower's name, and the borrower's address.  */
 
-SELECT * FROM Books;
+CREATE PROC dbo.LoanersInfo 
+(@DueDate date = NULL, @LibraryBranchName varchar(50) = 'Sharpstown')
+AS
+SET @DueDate = GETDATE()
+SELECT Branch.library_branch_BranchName AS [Branch Name],  Book.book_Title [Book Name],
+	   Borrower.borrower_BorrowerName AS [Borrower Name], Borrower.borrower_BorrowerAddress AS [Borrower Address],
+	   Loans.book_loans_DateOut AS [Date Out], Loans.book_loans_DueDate [Due Date]
+	   FROM tbl_book_loans AS Loans
+			INNER JOIN tbl_book AS Book ON Loans.book_loans_BookID = Book.book_BookID
+			INNER JOIN tbl_borrower AS Borrower ON Loans.book_loans_CardNo = Borrower.borrower_CardNo
+			INNER JOIN tbl_library_branch AS Branch ON Loans.book_loans_BranchID = Branch.library_branch_BranchID
+		WHERE Loans.book_loans_DueDate = @DueDate AND Branch.library_branch_BranchName = @LibraryBranchName
+GO
+EXEC dbo.LoanersInfo 
 
-CREATE TABLE IssueStatus(
-Issue_Id INT PRIMARY KEY,
-Issued_cust INT,
-Issued_book_name VARCHAR(100),
-Issue_date DATE,
-Isbn_book INT,
-FOREIGN KEY(Issued_cust) REFERENCES Customer(Customer_Id),
-FOREIGN KEY(Isbn_book) REFERENCES Books(ISBN)
-);
+/* #5- For each library branch, retrieve the branch name and the total number of books loaned out from that branch.  */
 
-INSERT INTO Issuestatus VALUES
-(4001, 3002, 'A Tale of Two Cities', '2023-05-04', 20001),
-(4002, 3005, 'Black Beauty', '2023-05-10', 20004),
-(4003, 3006, 'Harry Potter and the Chamber of Secrets', '2023-06-10', 20010),
-(4004, 3007,'War and Peace ', '2023-06-15',20006),
-(4005, 3010, 'The Ginger Man', '2023-08-25',20005),
-(4006, 3012,  'The Little Prince', '2023-08-30',20014),
-(4007, 3014,  'The Adventures of Pinocchio', '2023-10-01', 20017),
-(4008, 3015,'The Girl on the Train', '2023-10-05',  20018),
-(4009, 3018,  'The Tale of Peter Rabbit', '2023-12-20',20019),
-(4010, 3020, 'Harry Potter and the Half-Blood Prince', '2023-12-25',20020);
+CREATE PROC dbo.TotalLoansPerBranch
+AS
+SELECT  Branch.library_branch_BranchName AS [Branch Name], COUNT (Loans.book_loans_BranchID) AS [Total Loans]
+		FROM tbl_book_loans AS Loans
+			INNER JOIN tbl_library_branch AS Branch ON Loans.book_loans_BranchID = Branch.library_branch_BranchID
+			GROUP BY library_branch_BranchName
+GO
+EXEC dbo.TotalLoansPerBranch
 
-SELECT * FROM Issuestatus;
+/* #6- Retrieve the names, addresses, and number of books checked out for all borrowers who have more than five books checked out. */
 
-CREATE TABLE Returnstatus(
-Return_Id INT PRIMARY KEY,
-Return_cust INT,
-Return_book_name VARCHAR(100),
-Return_date DATE,
-Isbn_book2 INT,
-FOREIGN KEY(Return_cust) REFERENCES customer(Customer_Id),
-FOREIGN KEY(Isbn_book2) REFERENCES Books(ISBN)
-);
+CREATE PROC dbo.BooksLoanedOut
+(@BooksCheckedOut INT = 5)
+AS
+	SELECT Borrower.borrower_BorrowerName AS [Borrower Name], Borrower.borrower_BorrowerAddress AS [Borrower Address],
+		   COUNT(Borrower.borrower_BorrowerName) AS [Books Checked Out]
+		   FROM tbl_book_loans AS Loans
+		   			INNER JOIN tbl_borrower AS Borrower ON Loans.book_loans_CardNo = Borrower.borrower_CardNo
+					GROUP BY Borrower.borrower_BorrowerName, Borrower.borrower_BorrowerAddress
+		   HAVING COUNT(Borrower.borrower_BorrowerName) >= @BooksCheckedOut
+GO
+EXEC dbo.BooksLoanedOut
 
-INSERT INTO Returnstatus VALUES
-(5001, 3002,'A Tale of Two Cities', '2023-12-10', 20001),
-(5002, 3005,'Black Beauty', '2023-12-20', 20004),
-(5003, 3006,'Harry Potter and the Chamber of Secrets', '2024-01-10', 20010),
-(5004, 3007,'War and Peace ', '2024-01-15',20006),
-(5005, 3010,'The Ginger Man', '2024-03-25',20005),
-(5006, 3012,'The Little Prince', '2024-03-30',20014),
-(5007, 3014,'The Adventures of Pinocchio', '2024-04-01', 20017),
-(5008, 3015,'The Girl on the Train', '2024-04-05',  20018),
-(5009, 3018,'The Tale of Peter Rabbit', '2024-05-20',20019),
-(5010, 3020,'Harry Potter and the Half-Blood Prince', '2024-05-25',20020);
 
-SELECT * FROM Returnstatus;
 
-#1. Retrieve the book title, category, and rental price of all available BOOKS.
+/* #7- For each book authored by "Stephen King", retrieve the title and the number of copies owned by the library branch whose name is "Central".*/
 
-SELECT Book_title,Category,Rental_price FROM Books WHERE STATUS = 'YES';
+CREATE PROC dbo.BookbyAuthorandBranch
+	(@BranchName varchar(50) = 'Central', @AuthorName varchar(50) = 'Stephen King')
+AS
+	SELECT Branch.library_branch_BranchName AS [Branch Name], Book.book_Title AS [Title], Copies.book_copies_No_Of_Copies AS [Number of Copies]
+		   FROM tbl_book_authors AS Authors
+				INNER JOIN tbl_book AS Book ON Authors.book_authors_BookID = Book.book_BookID
+				INNER JOIN tbl_book_copies AS Copies ON Authors.book_authors_BookID = Copies.book_copies_BookID
+				INNER JOIN tbl_library_branch AS Branch ON Copies.book_copies_BranchID = Branch.library_branch_BranchID
+			WHERE Branch.library_branch_BranchName = @BranchName AND Authors.book_authors_AuthorName = @AuthorName
+GO	
+EXEC dbo.BookbyAuthorandBranch
 
-#2 List the employee names and their respective salaries in descending order of salary.
-
-SELECT Emp_name,Salary FROM Employee ORDER BY Salary DESC;
-
-#3 Retrieve the book titles and the corresponding customers who have issued those books.
-
-SELECT Books.Book_title,Customer.Customer_name FROM Issuestatus 
-JOIN Books ON Issuestatus.Isbn_book = Books.ISBN
-JOIN Customer ON Issuestatus.Issued_cust = Customer.Customer_ID;
-
-#4  Display the total count of books in each category.
-
-SELECT Category, COUNT(*) FROM Books GROUP BY Category;
-
-#5 Retrieve the employee names and their positions for the employees whose salaries are above Rs.50,000.
-
-SELECT Emp_name,Position,Salary FROM Employee WHERE Salary > 50000;
-
-#6. List the customer names who registered before 2022-01-01 and have not issued any books yet.
-
-SELECT Customer_name,Reg_date FROM Customer
-LEFT JOIN Issuestatus ON Customer.Customer_ID = Issuestatus.Issued_Cust
-WHERE Customer.Reg_date < '2022-01-01' AND Issuestatus.Isbn_book IS NULL; 
-
-#7 Display the branch numbers and the total count of employees in each branch.
-
-SELECT Branch_no,COUNT(*) FROM Employee GROUP BY Branch_No;
-
-#8 Display the names of customers who have issued books in the month of June 2023.
-
-SELECT Customer_name FROM Customer
-JOIN Issuestatus ON Customer.Customer_ID = Issuestatus.Issued_cust
-WHERE Issuestatus.Issue_date BETWEEN '2023-06-01' AND '2023-06-30';
-
-#9  Retrieve book_title from book table containing history. 
-
-SELECT Book_title FROM Books WHERE Category = 'History';
-
-#10 Retrieve the branch numbers along with the count of employees for branches having more than 5 employees.
-
-SELECT Branch_no,COUNT(*) as Total_employee FROM Employee GROUP BY Branch_no HAVING Total_employee > 5;
-
-# Retrieve the branch numbers along with the count of employees for branches having more than 2 employees.
-SELECT Branch_no,COUNT(*) as Total_employee FROM Employee GROUP BY Branch_no HAVING Total_employee > 2;
+/* ==================================== STORED PROCEDURE QUERY QUESTIONS =================================== */
